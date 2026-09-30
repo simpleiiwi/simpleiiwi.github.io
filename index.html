@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>你的名字 · 个人主页</title>
+    <meta name="description" content="全栈开发者 / 独立开发者 · 喜欢把想法做成能用的小工具。" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#070c1c" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <link rel="stylesheet" href="assets/diag.css" />
+    <script>
+      /* 主题在样式表生效前就定下来，避免刷新时闪一下白 */
+      (function () {
+        try {
+          var saved = window.localStorage.getItem("personal-site.theme");
+          if (saved !== "light" && saved !== "dark") {
+            saved = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+          }
+          document.documentElement.dataset.theme = saved;
+        } catch (err) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+
+    <!-- ============================ 头部 ============================ -->
+    <header class="header" data-header>
+      <div class="header__top">
+        <a class="header__brand" href="#home" data-brand></a>
+        <div class="header__tools">
+          <a class="tool" href="#" data-github-icon aria-label="GitHub 主页" rel="me noopener"></a>
+          <button class="tool" type="button" data-theme-toggle aria-label="切换主题"></button>
+          <span class="tool visitor" data-visitor></span>
+          <button
+            class="tool header__menu"
+            type="button"
+            data-menu-toggle
+            aria-controls="mobile-panel"
+            aria-expanded="false"
+            aria-label="打开导航菜单"
+          ></button>
+        </div>
+      </div>
+
+      <div class="header__nav">
+        <nav aria-label="主导航">
+          <ul class="nav" data-nav></ul>
+        </nav>
+        <a class="header__cta" href="#" data-github-cta></a>
+      </div>
+
+      <div class="mobile-panel" id="mobile-panel" data-mobile-panel></div>
+    </header>
+
+    <main id="main">
+      <!-- =========================== Hero =========================== -->
+      <section class="hero" id="home" data-hero aria-label="个人简介">
+        <div class="hero__sky" data-sky></div>
+
+        <div class="hero__inner">
+          <div class="hero__stack">
+            <div class="avatar" data-hero-avatar></div>
+            <p class="hero__kicker" data-hero-kicker></p>
+            <h1 class="hero__name" data-hero-name></h1>
+            <p class="hero__role" data-hero-role></p>
+            <p class="hero__intro" data-hero-intro></p>
+            <p class="hero__status" data-hero-status></p>
+            <div class="hero__cta" data-hero-cta></div>
+          </div>
+        </div>
+
+        <ul class="hero__stats" data-hero-stats aria-label="开源数据统计"></ul>
+      </section>
+
+      <div class="shell">
+        <div class="notice" data-demo-notice></div>
+      </div>
+
+      <!-- =========================== 项目 =========================== -->
+      <section class="section section--first" id="projects" aria-labelledby="projects-title">
+        <div class="shell" data-reveal>
+          <div class="section-head" data-projects-head></div>
+          <div class="projects" data-projects></div>
+        </div>
+      </section>
+
+      <!-- =========================== 文章 =========================== -->
+      <section class="section" id="posts" aria-labelledby="posts-title">
+        <div class="shell" data-reveal>
+          <div class="section-head" data-posts-head></div>
+          <ul class="posts" data-posts></ul>
+        </div>
+      </section>
+
+      <!-- =========================== 游戏 =========================== -->
+      <section class="section" id="games" aria-labelledby="games-title">
+        <div class="shell" data-reveal>
+          <div class="section-head" data-games-head></div>
+          <div class="media-grid" data-games></div>
+        </div>
+      </section>
+
+      <!-- =========================== 番剧 =========================== -->
+      <section class="section" id="anime" aria-labelledby="anime-title">
+        <div class="shell" data-reveal>
+          <div class="section-head" data-anime-head></div>
+          <div class="media-grid" data-anime></div>
+        </div>
+      </section>
+
+      <!-- =========================== 技能 =========================== -->
+      <section class="section" id="skills" aria-labelledby="skills-title">
+        <div class="shell" data-reveal>
+          <div class="section-head" data-skills-head></div>
+          <div class="skills">
+            <div class="radar-wrap">
+              <div class="radar-box" data-radar></div>
+              <div class="radar-tooltip" role="tooltip" data-radar-tooltip></div>
+            </div>
+            <ul class="skill-list" data-skills></ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============================ 页脚 ============================ -->
+    <footer class="footer">
+      <div class="shell footer__inner">
+        <p class="footer__copy" data-footer-copy></p>
+        <ul class="footer__socials" data-socials></ul>
+        <button class="to-top" type="button" data-to-top></button>
+      </div>
+    </footer>
+
+    <noscript>
+      <p style="padding: 24px; text-align: center">
+        这个页面用 JavaScript 渲染内容（星空也是实时画出来的）。请开启 JavaScript，或者直接访问
+        <a href="https://github.com/simpleiiwi">GitHub</a> 联系我。
+      </p>
+    </noscript>
+
+    <!-- 顺序不能变：自检 → 图标 → 数据 → 星空引擎 → 雷达图 → 路由 → 主逻辑 -->
+    <script src="assets/diag.js"></script>
+    <script src="assets/icons.js"></script>
+    <script src="assets/config.js"></script>
+    <script src="assets/sky.js"></script>
+    <script src="assets/radar.js"></script>
+    <script src="assets/router.js"></script>
+    <script src="assets/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,56 @@
+/* 自检面板样式（只在 ?diag=1 时出现） */
+.diag {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 9999;
+  width: min(380px, calc(100vw - 32px));
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(124, 147, 218, 0.4);
+  background: rgba(6, 10, 24, 0.94);
+  color: #eef2fc;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 11.5px;
+  line-height: 1.7;
+  box-shadow: 0 20px 40px -24px rgba(0, 0, 0, 0.9);
+}
+
+.diag__head {
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(124, 147, 218, 0.3);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.diag__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.diag__row span {
+  color: #99a5c7;
+}
+
+.diag__row b {
+  font-weight: 600;
+  text-align: right;
+}
+
+.diag__row.ok b {
+  color: #8fe0a8;
+}
+
+.diag__row.bad b {
+  color: #ff9a90;
+}
+
+.diag__err {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(240, 69, 58, 0.4);
+  color: #ffb4ab;
+  word-break: break-all;
+}
