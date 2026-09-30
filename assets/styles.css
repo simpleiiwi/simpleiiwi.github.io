@@ -479,6 +479,47 @@ code {
   display: block;
 }
 
+/* 用自己的图当 Hero 背景时：图 + 一层压暗，保证压在上面的文字仍然读得清 */
+.hero__sky--photo {
+  display: block;
+}
+
+.hero__photo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  /* 取景：从左上角开始对齐并放大 1.6 倍，把人物推到画面右侧，
+     中间留给标题文字。换背景图后想调整取景，改这两个值就行。 */
+  object-position: 0% 0%;
+  transform-origin: 0 0;
+  transform: scale(1.6);
+}
+
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(4, 7, 18, 0.3) 0%, rgba(4, 7, 18, 0.32) 42%, rgba(4, 7, 18, 0.66) 100%),
+    radial-gradient(ellipse 68% 60% at 50% 46%, rgba(4, 7, 18, 0.44), rgba(4, 7, 18, 0.08) 62%, rgba(4, 7, 18, 0.44) 100%);
+}
+
+.hero.is-painted .hero__photo {
+  animation: photo-in 1.8s var(--ease) both;
+}
+
+@keyframes photo-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* 首屏「被画出来」的那一下：整幅画先显影，文字再一级级浮上来。
    动画挂在 .sky 这个整体元素上（只走合成层），不去动内部的滤镜图层，
    所以在 1000+ 条笔触的情况下也不会掉帧。默认状态全部可见。 */
@@ -1515,6 +1556,13 @@ code {
 }
 
 @media (max-width: 620px) {
+  /* 手机竖屏窄，重新取景：让人物留在画面里，别被裁掉 */
+  .hero__photo {
+    /* 手机竖屏只取画面左侧：暗色花枝 + 红底，中间干净，人物留给宽屏看 */
+    object-position: 6% 4%;
+    transform: scale(1.05);
+  }
+
   .projects {
     grid-template-columns: minmax(0, 1fr);
   }

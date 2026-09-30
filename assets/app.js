@@ -30,6 +30,27 @@
 
   /* ============================ 1. 文档信息 ============================ */
 
+  /**
+   * 网址上带参数时临时覆盖配置，方便调样式 / 给朋友看不同版本，不改文件也不影响正式数据：
+   *   ?seed=123     换一幅星空（等价于改 config.js 里的 meta.skySeed）
+   *   ?theme=light  强制亮色主题
+   */
+  function applyUrlOverrides() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var seed = Number(params.get("seed"));
+      if (seed) {
+        cfg.meta.skySeed = seed;
+      }
+      var theme = params.get("theme");
+      if (theme === "light" || theme === "dark") {
+        document.documentElement.dataset.theme = theme;
+      }
+    } catch (err) {
+      /* 老浏览器没有 URLSearchParams 就算了 */
+    }
+  }
+
   function initDocument() {
     document.documentElement.lang = cfg.meta.lang || "zh-CN";
     document.title = cfg.meta.title;
@@ -217,11 +238,8 @@
     }
 
     if (avatarEl) {
-      if (cfg.profile.avatar) {
-        avatarEl.innerHTML =
-          '<img src="' + esc(cfg.profile.avatar) + '" alt="' + esc(cfg.profile.name) + '的头像" width="152" height="152">';
-      } else {
-        /* 没填头像就用姓名首字生成一个：底色由名字决定，稳定不随机 */
+      /* 没有头像图、或者图挂了（还没上传 / 路径写错）时，退回姓名首字生成的头像 */
+      var showInitialAvatar = function () {
         var hash = 0;
         for (var i = 0; i < cfg.profile.name.length; i++) {
           hash = (hash * 31 + cfg.profile.name.charCodeAt(i)) % 360;
@@ -233,7 +251,20 @@
           esc(cfg.profile.name.charAt(0)) +
           "</span>";
         avatarEl.setAttribute("role", "img");
-        avatarEl.setAttribute("aria-label", esc(cfg.profile.name) + "的头像占位图");
+        avatarEl.setAttribute("aria-label", cfg.profile.name + "的头像占位图");
+      };
+
+      if (cfg.profile.avatar) {
+        avatarEl.innerHTML =
+          '<img src="' + esc(cfg.profile.avatar) + '" alt="' + esc(cfg.profile.name) + '的头像" width="152" height="152">';
+        avatarEl.removeAttribute("role");
+        avatarEl.removeAttribute("aria-label");
+        var avatarImg = avatarEl.querySelector("img");
+        if (avatarImg) {
+          avatarImg.addEventListener("error", showInitialAvatar);
+        }
+      } else {
+        showInitialAvatar();
       }
     }
 
@@ -283,18 +314,44 @@
         .join("");
     }
 
-    /* 星空画布 */
+    /* 首屏背景：配了图就用图，没配（或图片没传上去 / 路径写错）才用代码画星空 */
     var skySlot = $("[data-sky]");
-    if (skySlot && window.Sky) {
-      var started = window.performance && window.performance.now ? window.performance.now() : 0;
-      window.Sky.render(skySlot, {
-        seed: cfg.meta.skySeed,
-        width: 1600,
-        height: 900,
-        variant: "hero",
-      });
-      var elapsed = (window.performance.now ? window.performance.now() : 0) - started;
-      skySlot.dataset.paintMs = String(Math.round(elapsed));
+    if (skySlot) {
+      var paintSky = function () {
+        if (!window.Sky) {
+          return;
+        }
+        var started = window.performance && window.performance.now ? window.performance.now() : 0;
+        window.Sky.render(skySlot, {
+          seed: cfg.meta.skySeed,
+          width: 1600,
+          height: 900,
+          variant: "hero",
+        });
+        var elapsed = (window.performance.now ? window.performance.now() : 0) - started;
+        skySlot.dataset.paintMs = String(Math.round(elapsed));
+      };
+
+      if (cfg.meta.heroImage) {
+        skySlot.classList.add("hero__sky--photo");
+        skySlot.innerHTML =
+          '<img class="hero__photo" src="' +
+          esc(cfg.meta.heroImage) +
+          '" alt="" aria-hidden="true" decoding="async">' +
+          '<span class="hero__scrim" aria-hidden="true"></span>';
+        skySlot.dataset.paintMs = "0";
+        var heroImg = skySlot.querySelector("img");
+        if (heroImg) {
+          heroImg.addEventListener("error", function () {
+            /* 背景图不存在时退回星空，不至于只剩一片黑 */
+            skySlot.classList.remove("hero__sky--photo");
+            skySlot.innerHTML = "";
+            paintSky();
+          });
+        }
+      } else {
+        paintSky();
+      }
     }
   }
 
@@ -892,6 +949,7 @@
   /* ============================== 6. 启动 ============================== */
 
   function boot() {
+    applyUrlOverrides();
     initDocument();
     renderHeader();
     initTheme();

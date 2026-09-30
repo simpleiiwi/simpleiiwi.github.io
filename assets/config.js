@@ -15,24 +15,28 @@ window.SiteConfig = {
   meta: {
     /* TODO: 换成你自己的内容后改成 false */
     isDemoData: true,
-    title: "你的名字 · 个人主页",
+    title: "kyky · 个人主页",
     description: "全栈开发者 / 独立开发者 · 喜欢把想法做成能用的小工具。",
-    /* 星空画布的随机种子：改这个数字会得到一幅不同的星空（同一数字每次渲染都一样） */
+    /* 首屏背景：填相对路径就用你自己的图当 Hero 背景（会取代代码画的星空）；留空则用星空。
+       建议用 16:9 左右的横图，深色或暗调最好，文字会更清楚。 */
+    heroImage: "assets/hero-bg.jpg",
+    /* 星空画布的随机种子：改这个数字会得到一幅不同的星空（同一数字每次渲染都一样）。
+       只在 heroImage 留空时生效；想快速预览不同星空，可以用 ?seed=123 加在网址后面。 */
     skySeed: 20260930,
     /* 语言，用于 <html lang> */
     lang: "zh-CN",
   },
 
   profile: {
-    /* TODO: 你的名字 */
-    name: "你的名字",
+    /* 你的名字或昵称 */
+    name: "kyky",
     kicker: "Hi，我是",
     /* TODO: 职位副标题 */
     role: "全栈开发者 / 独立开发者",
     /* TODO: 一句话简介 */
     intro: "喜欢把想法做成能用的小工具。",
-    /* TODO: 头像。留空则用姓名首字生成的渐变头像；也可以填 assets/avatar.jpg 这类相对路径 */
-    avatar: "",
+    /* 头像：正方形图最好。留空则用姓名首字生成的占位头像 */
+    avatar: "assets/avatar.jpg",
     location: "中国 · 上海",
     /* 头像下方的小状态条，不喜欢可以删掉整个字段 */
     status: "目前在折腾本地优先的桌面应用",
