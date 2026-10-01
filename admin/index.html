@@ -198,6 +198,58 @@
         text-decoration: underline;
         text-underline-offset: 3px;
       }
+
+      /* 选图与预览 */
+      .admin input[type="file"] {
+        display: block;
+        margin-top: 6px;
+        padding: 9px 12px;
+        border: 1px dashed var(--line-strong);
+        border-radius: 10px;
+        background: var(--bg-raised);
+        color: var(--text-2);
+        font-size: 13.5px;
+        width: 100%;
+      }
+
+      .admin__previews {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .admin__thumb {
+        position: relative;
+        display: block;
+        width: 92px;
+        height: 92px;
+      }
+
+      .admin__thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        display: block;
+      }
+
+      .admin__thumb-x {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 1px solid var(--line-strong);
+        background: var(--night-800);
+        color: var(--text);
+        font-size: 14px;
+        line-height: 1;
+        display: grid;
+        place-items: center;
+      }
     </style>
     <script>
       /* 和主站一致：先定主题，避免闪一下 */
@@ -262,6 +314,11 @@
           >标签（用逗号隔开，可留空）
           <input id="tags" type="text" placeholder="日记, 折腾" />
         </label>
+        <label
+          >图片（可选，最多 9 张；会自动压到 1600px 长边再上传）
+          <input id="images" type="file" accept="image/*" multiple />
+        </label>
+        <div class="admin__previews" id="previews"></div>
         <div class="admin__row">
           <button id="publish" class="btn btn--primary" type="button">发布</button>
           <button id="cancel-edit" class="btn btn--ghost" type="button" hidden>取消编辑</button>
@@ -295,7 +352,7 @@
           " * 也可以直接手动改：数组里最新的放最前面，date 用 YYYY-MM-DD。\n" +
           " * ==========================================================================*/\n";
 
-        var state = { token: "", sha: "", items: [], editing: -1 };
+        var state = { token: "", sha: "", items: [], editing: -1, images: [] };
 
         function el(id) {
           return document.getElementById(id);
@@ -327,6 +384,135 @@
 
         function serialize() {
           return HEADER + "window.SiteMoments = " + JSON.stringify(state.items, null, 2) + ";\n";
+        }
+
+        /* ---------- 图片：压缩 → 上传到 assets/moments/ → 记路径 ---------- */
+
+        function blobToBase64(blob) {
+          return new Promise(function (resolve, reject) {
+            var reader = new FileReader();
+            reader.onload = function () {
+              resolve(String(reader.result).split(",")[1]);
+            };
+            reader.onerror = function () {
+              reject(new Error("读取图片失败"));
+            };
+            reader.readAsDataURL(blob);
+          });
+        }
+
+        /* 长边压到 1600px、JPEG 0.85：手机拍的照片从 5MB 降到两三百 KB，网页加载才不卡 */
+        function downscale(file) {
+          return new Promise(function (resolve, reject) {
+            var img = new Image();
+            var url = URL.createObjectURL(file);
+            img.onload = function () {
+              var max = 1600;
+              var scale = Math.min(1, max / Math.max(img.width, img.height));
+              var w = Math.max(1, Math.round(img.width * scale));
+              var h = Math.max(1, Math.round(img.height * scale));
+              var canvas = document.createElement("canvas");
+              canvas.width = w;
+              canvas.height = h;
+              canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+              URL.revokeObjectURL(url);
+              canvas.toBlob(
+                function (blob) {
+                  blob ? resolve(blob) : reject(new Error("图片处理失败"));
+                },
+                "image/jpeg",
+                0.85
+              );
+            };
+            img.onerror = function () {
+              URL.revokeObjectURL(url);
+              reject(new Error("这张图读不了，换一张试试"));
+            };
+            img.src = url;
+          });
+        }
+
+        function uploadImage(blob) {
+          var now = new Date();
+          var pad = function (n) {
+            return String(n).padStart(2, "0");
+          };
+          var name =
+            "assets/moments/" +
+            now.getFullYear() +
+            pad(now.getMonth() + 1) +
+            pad(now.getDate()) +
+            "-" +
+            pad(now.getHours()) +
+            pad(now.getMinutes()) +
+            pad(now.getSeconds()) +
+            "-" +
+            Math.random().toString(36).slice(2, 6) +
+            ".jpg";
+          return blobToBase64(blob).then(function (base64) {
+            return fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + name, {
+              method: "PUT",
+              headers: apiHeaders({ "Content-Type": "application/json" }),
+              body: JSON.stringify({
+                message: "新增动态图片 " + name.split("/").pop(),
+                content: base64,
+                branch: BRANCH
+              })
+            }).then(function (res) {
+              if (!res.ok) {
+                return res.text().then(function (body) {
+                  throw new Error(friendlyError(res.status, body));
+                });
+              }
+              return name;
+            });
+          });
+        }
+
+        function renderImages() {
+          el("previews").innerHTML = state.images
+            .map(function (item, index) {
+              return (
+                '<span class="admin__thumb"><img src="' +
+                item.url +
+                '" alt=""><button type="button" class="admin__thumb-x" data-remove="' +
+                index +
+                '" aria-label="移除这张图">×</button></span>'
+              );
+            })
+            .join("");
+        }
+
+        function clearImages() {
+          state.images.forEach(function (item) {
+            if (item.url && item.url.indexOf("blob:") === 0) {
+              URL.revokeObjectURL(item.url);
+            }
+          });
+          state.images = [];
+          renderImages();
+        }
+
+        /* 发布时先把待上传的图传完，返回按顺序排好的路径数组 */
+        function uploadPendingImages() {
+          var list = state.images.slice();
+          var paths = [];
+          var chain = Promise.resolve();
+          list.forEach(function (item, index) {
+            chain = chain.then(function () {
+              if (item.path) {
+                paths.push(item.path);
+                return null;
+              }
+              setStatus("正在上传第 " + (index + 1) + "/" + list.length + " 张图片…");
+              return uploadImage(item.blob).then(function (path) {
+                paths.push(path);
+              });
+            });
+          });
+          return chain.then(function () {
+            return paths;
+          });
         }
 
         /**
@@ -472,6 +658,8 @@
           el("date").value = todayValue();
           el("text").value = "";
           el("tags").value = "";
+          el("images").value = "";
+          clearImages();
         }
 
         function connect(token) {
@@ -526,6 +714,54 @@
           setStatus("已取消编辑。");
         });
 
+        /* 选图：压缩后放进预览区，点发布时才真正上传 */
+        el("images").addEventListener("change", function (event) {
+          var files = Array.prototype.slice.call(event.target.files || []);
+          var room = 9 - state.images.length;
+          if (room <= 0) {
+            setStatus("最多 9 张图。", "bad");
+            return;
+          }
+          files = files.filter(function (file) {
+            return /^image\//.test(file.type);
+          }).slice(0, room);
+          if (!files.length) {
+            return;
+          }
+          setStatus("正在压缩图片…");
+          var chain = Promise.resolve();
+          files.forEach(function (file) {
+            chain = chain.then(function () {
+              return downscale(file).then(function (blob) {
+                state.images.push({ blob: blob, url: URL.createObjectURL(blob) });
+              });
+            });
+          });
+          chain
+            .then(function () {
+              renderImages();
+              el("images").value = "";
+              setStatus("已加入 " + state.images.length + " 张图（点「发布」才会上传）。");
+            })
+            .catch(function (err) {
+              setStatus(err.message, "bad");
+            });
+        });
+
+        el("previews").addEventListener("click", function (event) {
+          var idx = event.target.getAttribute("data-remove");
+          if (idx === null) {
+            return;
+          }
+          var item = state.images[Number(idx)];
+          if (item && item.url && item.url.indexOf("blob:") === 0) {
+            URL.revokeObjectURL(item.url);
+          }
+          state.images.splice(Number(idx), 1);
+          renderImages();
+          setStatus("已移除一张图。");
+        });
+
         el("publish").addEventListener("click", function () {
           var date = el("date").value || todayValue();
           var text = el("text").value.trim();
@@ -539,19 +775,26 @@
             setStatus("内容不能是空的。", "bad");
             return;
           }
-          var entry = { date: date, text: text };
-          if (tags.length) {
-            entry.tags = tags;
-          }
           var isEdit = state.editing >= 0;
-          if (isEdit) {
-            state.items[state.editing] = entry;
-          } else {
-            state.items.push(entry);
-          }
-          sortItems();
-          setStatus("正在提交…");
-          write((isEdit ? "更新动态 " : "新增动态 ") + date)
+          setStatus("正在准备…");
+          uploadPendingImages()
+            .then(function (paths) {
+              var entry = { date: date, text: text };
+              if (tags.length) {
+                entry.tags = tags;
+              }
+              if (paths.length) {
+                entry.images = paths;
+              }
+              if (isEdit) {
+                state.items[state.editing] = entry;
+              } else {
+                state.items.push(entry);
+              }
+              sortItems();
+              setStatus("正在提交…");
+              return write((isEdit ? "更新动态 " : "新增动态 ") + date);
+            })
             .then(function () {
               render();
               resetForm();
@@ -580,6 +823,11 @@
             el("date").value = item.date;
             el("text").value = item.text;
             el("tags").value = (item.tags || []).join(", ");
+            clearImages();
+            state.images = (item.images || []).map(function (path) {
+              return { path: path, url: path };
+            });
+            renderImages();
             el("text").focus();
             setStatus("正在编辑 " + item.date + " 那条。");
             return;

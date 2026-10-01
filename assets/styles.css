@@ -1204,6 +1204,45 @@ code {
   margin-top: 10px;
 }
 
+/* 动态里的图片：1 张按原比例（限高），多张排成方格子，和朋友圈一样 */
+.moment__images {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  max-width: 440px;
+}
+
+.moment__images--1 {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.moment__images--2,
+.moment__images--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.moment__images--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.moment__images img {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--bg-raised);
+  object-fit: cover;
+}
+
+.moment__images--1 img {
+  max-height: 420px;
+}
+
+.moment__images--2 img,
+.moment__images--3 img {
+  aspect-ratio: 1 / 1;
+}
+
 .media-card__rating {
   position: absolute;
   top: 10px;

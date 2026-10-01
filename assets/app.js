@@ -521,6 +521,21 @@
           '<p class="moment__text">' +
           esc(item.text) +
           "</p>" +
+          (item.images && item.images.length
+            ? '<div class="moment__images moment__images--' +
+              Math.min(item.images.length, 3) +
+              '">' +
+              item.images
+                .map(function (src) {
+                  return (
+                    '<img src="' +
+                    esc(src) +
+                    '" alt="" loading="lazy" decoding="async">'
+                  );
+                })
+                .join("") +
+              "</div>"
+            : "") +
           (item.tags && item.tags.length
             ? '<p class="moment__tags">' +
               item.tags
