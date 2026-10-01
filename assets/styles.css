@@ -915,6 +915,13 @@ code {
   box-shadow: var(--shadow-lift);
 }
 
+/* 还没开源、没有链接的项目：做成不可点的卡片，就别跟着hover抬起来骗人了 */
+.project--static:hover {
+  transform: none;
+  border-color: var(--line);
+  box-shadow: none;
+}
+
 .project__head {
   display: flex;
   align-items: center;
@@ -1108,6 +1115,93 @@ code {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+/* 游戏 / 番剧封面：按名字算一个色相，做一张双色渐变海报 + 首字。
+   比原来的"程序生成小星空"清楚得多，也完全不需要图片文件。 */
+.cover--poster {
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.07) 50%, rgba(255, 255, 255, 0) 60%),
+    radial-gradient(circle at 24% 16%, hsla(var(--cover-hue), 72%, 64%, 0.42), transparent 60%),
+    linear-gradient(146deg, hsl(var(--cover-hue), 50%, 30%), hsl(calc(var(--cover-hue) + 28), 56%, 15%));
+}
+
+.cover__glyph {
+  font-family: var(--font-sans);
+  font-size: clamp(2.6rem, 4.2vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 6px 24px rgba(3, 6, 16, 0.5);
+}
+
+/* 有真封面图时，图盖在渐变海报上面；图挂了会自动被移除，露出下面的首字海报 */
+.cover__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --------------------------- 动态 / 日记 --------------------------- */
+
+.moments {
+  display: flex;
+  flex-direction: column;
+}
+
+.moments > li + li {
+  border-top: 1px solid var(--line);
+}
+
+.moment {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr);
+  gap: 24px;
+  padding: 20px 0;
+}
+
+.moment__date {
+  position: relative;
+  padding-left: 14px;
+  color: var(--text-3);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 每条前面一个小红点：一眼能看出这是「按日期记的流水」 */
+.moment__date::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.moment__body {
+  display: flex;
+  flex-direction: column;
+}
+
+.moment__text {
+  max-width: 68ch;
+  color: var(--text-2);
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.moment__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .media-card__rating {
@@ -1529,6 +1623,11 @@ code {
 }
 
 @media (max-width: 768px) {
+  .moment {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
   .media-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

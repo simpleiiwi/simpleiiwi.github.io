@@ -388,6 +388,31 @@
 
   /* ============================== 4. 区块 ============================== */
 
+  /**
+   * 没内容的区块整个收起来，连导航里那一项一起隐藏。
+   * 比如「文章」还没写第一篇时，页面上不会留一个空区块、也不会留一个点了没反应的导航项。
+   * 以后往 config.js 的 posts 里加了内容，区块和导航会自动回来。
+   */
+  function hideEmptySections() {
+    var sections = document.querySelectorAll("main section[id]");
+    Array.prototype.forEach.call(sections, function (section) {
+      var body = section.querySelector(
+        "[data-posts], [data-projects], [data-moments], [data-games], [data-anime], [data-skills]"
+      );
+      if (!body || body.children.length) {
+        return;
+      }
+      var links = document.querySelectorAll('[data-nav-id="' + section.id + '"]');
+      Array.prototype.forEach.call(links, function (link) {
+        var item = link.closest("li");
+        if (item) {
+          item.remove();
+        }
+      });
+      section.remove();
+    });
+  }
+
   function sectionHead(title, meta, id) {
     return (
       '<div class="section-head">' +
@@ -415,18 +440,26 @@
     }
     list.innerHTML = cfg.projects
       .map(function (item) {
+        /* 有链接就整张卡可点；没链接（比如还没开源）就做成不可点的卡片，别硬塞一个假外链 */
+        var tag = item.url ? "a" : "article";
+        var opening =
+          "<" +
+          tag +
+          ' class="card project' +
+          (item.url ? "" : " project--static") +
+          '"' +
+          (item.url
+            ? ' href="' + esc(item.url) + '" target="_blank" rel="noopener noreferrer"'
+            : "") +
+          ">";
         return (
-          '<a class="card project" href="' +
-          esc(item.url) +
-          '" target="_blank" rel="noopener noreferrer">' +
+          opening +
           '<span class="project__head">' +
           '<span class="project__name">' +
           esc(item.name) +
           "</span>" +
           (item.featured ? '<span class="tag tag--accent">置顶</span>' : "") +
-          '<span class="project__open" aria-hidden="true">' +
-          icon("external", 16) +
-          "</span>" +
+          (item.url ? '<span class="project__open" aria-hidden="true">' + icon("external", 16) + "</span>" : "") +
           "</span>" +
           '<span class="project__desc">' +
           esc(item.description) +
@@ -437,14 +470,69 @@
           '" aria-hidden="true"></i>' +
           esc(item.language) +
           "</span>" +
-          '<span class="count"><span class="count__icon" aria-hidden="true">' +
-          icon("star", 14) +
+          (item.stars
+            ? '<span class="count"><span class="count__icon" aria-hidden="true">' +
+              icon("star", 14) +
+              "</span>" +
+              formatNumber(item.stars) +
+              "</span>"
+            : "") +
           "</span>" +
-          formatNumber(item.stars) +
-          "</span>" +
-          "</span>" +
-          '<span class="sr-only">（在新标签页打开 GitHub）</span>' +
-          "</a>"
+          (item.url ? '<span class="sr-only">（在新标签页打开 GitHub）</span>' : "") +
+          "</" +
+          tag +
+          ">"
+        );
+      })
+      .join("");
+  }
+
+  /* 动态 / 日记：短记录列表，按日期倒序（配置里写在前面的排前面） */
+  function renderMoments() {
+    var list = $("[data-moments]");
+    var head = $("[data-moments-head]");
+    if (!list) {
+      return;
+    }
+    /* 动态的数据放在 assets/moments.js 里（单独一个文件，方便发布 / 手改）；
+       万一那个文件没加载成功，就退回 config.js 里的 moments */
+    var items = window.SiteMoments || cfg.moments || [];
+    if (!items.length) {
+      var section = document.getElementById("moments");
+      if (section) {
+        section.remove();
+      }
+      return;
+    }
+    if (head) {
+      head.innerHTML = sectionHead("动态", items.length + " 条记录 · 日记 / 朋友圈", "moments-title");
+    }
+    list.innerHTML = items
+      .map(function (item) {
+        return (
+          "<li>" +
+          '<div class="moment">' +
+          '<time class="moment__date" datetime="' +
+          esc(item.date) +
+          '">' +
+          esc(item.date) +
+          "</time>" +
+          '<div class="moment__body">' +
+          '<p class="moment__text">' +
+          esc(item.text) +
+          "</p>" +
+          (item.tags && item.tags.length
+            ? '<p class="moment__tags">' +
+              item.tags
+                .map(function (tag) {
+                  return '<span class="tag">' + esc(tag) + "</span>";
+                })
+                .join("") +
+              "</p>"
+            : "") +
+          "</div>" +
+          "</div>" +
+          "</li>"
         );
       })
       .join("");
@@ -505,7 +593,13 @@
   function mediaCards(items, options) {
     return items
       .map(function (item) {
-        var seed = options.seedBase + item.name.length * 37 + item.name.charCodeAt(0) * 11;
+        /* 封面：按名字算出色相，做一张双色渐变海报 + 首字。
+           好处是每张卡都不一样、不依赖任何图片文件，也不会像之前那样全是黑乎乎的小星空。 */
+        var hash = 0;
+        for (var i = 0; i < item.name.length; i++) {
+          hash = (hash * 31 + item.name.charCodeAt(i)) % 997;
+        }
+        var hue = 196 + (hash % 74);
         var facts = [item.platform, item.status];
         if (item.hours) {
           facts.push(item.hours + " 小时");
@@ -517,11 +611,20 @@
         return (
           '<article class="media-card">' +
           '<div class="media-card__cover">' +
-          '<div class="cover" data-cover-seed="' +
-          seed +
+          '<div class="cover cover--poster" style="--cover-hue:' +
+          hue +
           '" role="img" aria-label="' +
           esc(item.name) +
-          '的程序生成封面"></div>' +
+          "的封面\">" +
+          '<span class="cover__glyph" aria-hidden="true">' +
+          esc(item.name.charAt(0)) +
+          "</span>" +
+          (item.cover
+            ? '<img class="cover__img" src="' +
+              esc(item.cover) +
+              '" alt="" loading="lazy" decoding="async">'
+            : "") +
+          "</div>" +
           (item.rating
             ? '<span class="media-card__rating" title="个人评分">' + esc(item.rating.toFixed(1)) + "</span>"
             : "") +
@@ -548,6 +651,16 @@
       .join("");
   }
 
+  /* 封面图加载失败（还没上传 / 路径写错）时，退回背后的渐变海报，不留破图 */
+  function initCoverImages() {
+    var images = document.querySelectorAll(".cover__img");
+    Array.prototype.forEach.call(images, function (img) {
+      img.addEventListener("error", function () {
+        img.remove();
+      });
+    });
+  }
+
   function renderGames() {
     var list = $("[data-games]");
     var head = $("[data-games-head]");
@@ -557,7 +670,7 @@
     if (head) {
       head.innerHTML = sectionHead("游戏", cfg.games.length + " 款在玩的游戏", "games-title");
     }
-    list.innerHTML = mediaCards(cfg.games, { seedBase: 1301 });
+    list.innerHTML = mediaCards(cfg.games);
   }
 
   function renderAnime() {
@@ -569,7 +682,7 @@
     if (head) {
       head.innerHTML = sectionHead("番剧", cfg.anime.length + " 部看过的番", "anime-title");
     }
-    list.innerHTML = mediaCards(cfg.anime, { seedBase: 2707 });
+    list.innerHTML = mediaCards(cfg.anime);
   }
 
   function renderSkills() {
@@ -958,10 +1071,13 @@
     renderDemoNotice();
     renderProjects();
     renderPosts();
+    renderMoments();
     renderGames();
     renderAnime();
     renderSkills();
     renderFooter();
+    initCoverImages();
+    hideEmptySections();
 
     window.Router.register(cfg.nav);
     window.Router.attach(

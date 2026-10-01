@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>页面没找到 · kyky</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/styles.css" />
+    <script>
+      (function () {
+        try {
+          document.documentElement.dataset.theme =
+            localStorage.getItem("personal-site.theme") === "light" ? "light" : "dark";
+        } catch (err) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <main class="shell" style="min-height: 100svh; display: grid; place-content: center; text-align: center; gap: 14px">
+      <p style="font-family: var(--font-display); font-size: clamp(3rem, 8vw, 5rem); font-weight: 800; letter-spacing: -0.04em">
+        404
+      </p>
+      <h1 style="font-size: 20px; font-weight: 700">这个地址没有页面</h1>
+      <p style="color: var(--text-2); max-width: 40ch">
+        可能是链接写错了，或者那个页面已经搬走。回首页看看？这个站首页的东西基本都在。
+      </p>
+      <p style="margin-top: 8px">
+        <a class="btn btn--primary" href="/">回到首页</a>
+      </p>
+    </main>
+  </body>
+</html>

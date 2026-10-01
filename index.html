@@ -4,9 +4,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>kyky · 个人主页</title>
-    <meta name="description" content="全栈开发者 / 独立开发者 · 喜欢把想法做成能用的小工具。" />
+    <meta name="description" content="kyky 的个人主页：全栈开发者 / 独立开发者，喜欢把想法做成能用的小工具。" />
+    <meta name="author" content="kyky" />
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#070c1c" />
+    <!-- 分享到微信 / QQ / X 时显示的卡片信息 -->
+    <meta property="og:type" content="profile" />
+    <meta property="og:title" content="kyky · 个人主页" />
+    <meta property="og:description" content="全栈开发者 / 独立开发者 · 喜欢把想法做成能用的小工具。" />
+    <meta property="og:url" content="https://simpleiiwi.github.io/" />
+    <meta property="og:image" content="https://simpleiiwi.github.io/assets/avatar.jpg" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="canonical" href="https://simpleiiwi.github.io/" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="assets/styles.css" />
     <link rel="stylesheet" href="assets/diag.css" />
@@ -97,6 +106,14 @@
         </div>
       </section>
 
+      <!-- ======================= 动态 / 日记 ======================= -->
+      <section class="section" id="moments" aria-labelledby="moments-title">
+        <div class="shell" data-reveal>
+          <div class="section-head" data-moments-head></div>
+          <ul class="moments" data-moments></ul>
+        </div>
+      </section>
+
       <!-- =========================== 游戏 =========================== -->
       <section class="section" id="games" aria-labelledby="games-title">
         <div class="shell" data-reveal>
@@ -144,10 +161,11 @@
       </p>
     </noscript>
 
-    <!-- 顺序不能变：自检 → 图标 → 数据 → 星空引擎 → 雷达图 → 路由 → 主逻辑 -->
+    <!-- 顺序不能变：自检 → 图标 → 数据 → 动态 → 星空引擎 → 雷达图 → 路由 → 主逻辑 -->
     <script src="assets/diag.js"></script>
     <script src="assets/icons.js"></script>
     <script src="assets/config.js"></script>
+    <script src="assets/moments.js"></script>
     <script src="assets/sky.js"></script>
     <script src="assets/radar.js"></script>
     <script src="assets/router.js"></script>

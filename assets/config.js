@@ -37,11 +37,11 @@ window.SiteConfig = {
     intro: "喜欢把想法做成能用的小工具。",
     /* 头像：正方形图最好。留空则用姓名首字生成的占位头像 */
     avatar: "assets/avatar.jpg",
-    location: "中国 · 上海",
+    location: "中国 · 广东",
     /* 头像下方的小状态条，不喜欢可以删掉整个字段 */
-    status: "目前在折腾本地优先的桌面应用",
+    status: "在折腾 CS2 录制工具和校园网小工具",
     ctaPrimary: { label: "访问 GitHub", href: "https://github.com/simpleiiwi", icon: "github" },
-    ctaGhost: { label: "发送邮件", href: "mailto:you@example.com", icon: "mail" },
+    ctaGhost: { label: "发送邮件", href: "mailto:3121332509@qq.com", icon: "mail" },
   },
 
   /* 顶部导航。现在全部指向单页锚点；以后要拆成多页，把 href 换成 "/projects/" 这类路径即可，
@@ -50,6 +50,7 @@ window.SiteConfig = {
     { id: "home", label: "首页", icon: "home", href: "#home" },
     { id: "projects", label: "项目", icon: "projects", href: "#projects" },
     { id: "posts", label: "文章", icon: "posts", href: "#posts" },
+    { id: "moments", label: "动态", icon: "moments", href: "#moments" },
     { id: "games", label: "游戏", icon: "games", href: "#games" },
     { id: "anime", label: "番剧", icon: "anime", href: "#anime" },
     { id: "skills", label: "技能", icon: "skills", href: "#skills" },
@@ -61,8 +62,7 @@ window.SiteConfig = {
   /* 页脚社交链接 */
   socials: [
     { label: "GitHub", icon: "github", href: "https://github.com/simpleiiwi" },
-    { label: "邮箱", icon: "mail", href: "mailto:you@example.com" },
-    { label: "RSS", icon: "rss", href: "/feed.xml" },
+    { label: "邮箱", icon: "mail", href: "mailto:3121332509@qq.com" },
   ],
 
   /* 访客计数：纯本地计数（同一浏览器每开一次会话 +1），没有后端也能跑。
@@ -85,114 +85,116 @@ window.SiteConfig = {
   /* ------------------------------- 项目 ------------------------------- */
   projects: [
     {
-      name: "LumenNote",
-      description: "本地优先的 Markdown 笔记应用，支持双向链接、全文检索与端到端加密同步。",
-      language: "TypeScript",
-      languageColor: "#3178C6",
-      stars: 128,
-      url: "https://github.com/simpleiiwi",
+      name: "CS2 击杀自动回录",
+      description:
+        "检测对局里的击杀事件，自动把「击杀前 8 秒 + 后 4 秒」存成片段。用 CS2 官方 GSI 判定多杀与 ACE，走 OBS 回放缓存落盘，带系统托盘和一键热录。",
+      language: "Python",
+      languageColor: "#3776AB",
+      stars: 0,
+      url: "",
       featured: true,
     },
     {
-      name: "PixelKit",
-      description: "跨平台截图与标注工具，全局快捷键唤起，支持滚动截图和贴图。",
-      language: "C#",
-      languageColor: "#7B4BD1",
-      stars: 86,
-      url: "https://github.com/simpleiiwi",
-    },
-    {
-      name: "Feedfold",
-      description: "把 RSS、Newsletter 和稍后读折叠成一份每日简报，只推给你真正想看的。",
-      language: "Go",
-      languageColor: "#00ADD8",
-      stars: 54,
-      url: "https://github.com/simpleiiwi",
-    },
-    {
-      name: "TabNest",
-      description: "标签页收纳浏览器扩展：按项目分组、一键收起，隔天再打开还在原地。",
-      language: "JavaScript",
-      languageColor: "#F1E05A",
-      stars: 41,
-      url: "https://github.com/simpleiiwi",
-    },
-    {
-      name: "Clippy",
-      description: "轻量剪贴板历史管理器，支持正则搜索、模糊匹配和多设备同步。",
-      language: "Rust",
-      languageColor: "#DEA584",
-      stars: 33,
-      url: "https://github.com/simpleiiwi",
-    },
-    {
-      name: "dotfiles",
-      description: "我的开发环境配置：Windows Terminal、Neovim、PowerShell 一键同步。",
+      name: "蓝牙修复工具",
+      description:
+        "一键修复蓝牙耳机连不上、清理配对残留、输出诊断信息；配套的「耳机守护」会盯着连接状态，掉线或配对记录被清掉就自动处理并记日志。",
       language: "PowerShell",
       languageColor: "#4B7BB5",
-      stars: 22,
-      url: "https://github.com/simpleiiwi",
+      stars: 0,
+      url: "",
+    },
+    {
+      name: "选课余量监控",
+      description:
+        "只读轮询教务系统的选课余量，余量从 0 变成正数就用通知加声音提醒我。不改任何选课结果、不识别验证码，遇到验证码直接停下来提醒人工处理。",
+      language: "Python",
+      languageColor: "#3776AB",
+      stars: 0,
+      url: "",
     },
   ],
 
   /* ------------------------------- 文章 ------------------------------- */
-  posts: [
-    {
-      title: "用 Tauri 重写桌面笔记应用：我踩过的 7 个坑",
-      date: "2026-08-14",
-      readingTime: "12 分钟",
-      summary: "从 Electron 迁移到 Tauri 之后包体小了 90%，但文件和 SQLite 的权限模型把我按在地上摩擦了三轮。这是踩坑清单和最终方案。",
-      tags: ["桌面端", "Tauri", "Rust"],
-      url: "#posts",
-    },
-    {
-      title: "本地优先（Local-first）到底解决了什么问题",
-      date: "2026-06-02",
-      readingTime: "9 分钟",
-      summary: "云端优先的产品默认你的网络永远在线。我把自己三个小工具改成离线可用之后，才真正理解 CRDT 和冲突合并为什么值得。",
-      tags: ["架构", "CRDT"],
-      url: "#posts",
-    },
-    {
-      title: "把 RSS 折叠成一份每日简报",
-      date: "2026-04-21",
-      readingTime: "7 分钟",
-      summary: "订阅 200 个源以后，我需要的不是更多内容，而是一个会替我删掉东西的过滤器。记录一次信息减法的实现。",
-      tags: ["工具", "Go"],
-      url: "#posts",
-    },
-    {
-      title: "Windows 下的终端美学：一份可复制的配置",
-      date: "2026-02-09",
-      readingTime: "6 分钟",
-      summary: "Windows Terminal、PowerShell 7、Nerd Font 和一条能一眼看懂的提示符。附完整配置文件。",
-      tags: ["Windows", "效率"],
-      url: "#posts",
-    },
-    {
-      title: "我是怎么给开源项目写 README 的",
-      date: "2025-12-18",
-      readingTime: "5 分钟",
-      summary: "README 是项目的第一个界面。前 8 行必须回答：这是干什么的、怎么装、跑起来长什么样。",
-      tags: ["开源", "写作"],
-      url: "#posts",
-    },
-  ],
+  posts: [],
 
   /* ------------------------------- 游戏 ------------------------------- */
   games: [
-    { name: "艾尔登法环", platform: "PC", status: "二周目", rating: 9.6, hours: 168, note: "把探索奖励做成了信仰。" },
-    { name: "空洞骑士：丝之歌", platform: "PC", status: "进行中", rating: 9.2, hours: 34, note: "手感比前作更锋利。" },
-    { name: "塞尔达传说：王国之泪", platform: "Switch", status: "已通关", rating: 9.4, hours: 121, note: "究极手是这一代的灵魂。" },
-    { name: "星露谷物语", platform: "PC", status: "长期挂着", rating: 9.0, hours: 240, note: "每年冬天都会回去种一次地。" },
+    {
+      name: "绝地求生",
+      platform: "PC",
+      status: "偶尔开黑",
+      rating: 7.8,
+      hours: 620,
+      note: "第一个认真练枪的游戏，跳伞永远跳学校。",
+      cover: "assets/covers/pubg.jpg",
+    },
+    {
+      name: "CS2",
+      platform: "PC",
+      status: "长期在打",
+      rating: 8.6,
+      hours: 1400,
+      note: "为了它写了个击杀自动回录工具，现在回放里全是自己的下饭操作。",
+      cover: "assets/covers/cs2.jpg",
+    },
+    {
+      name: "森林之子",
+      platform: "PC",
+      status: "已通关",
+      rating: 8.4,
+      hours: 48,
+      note: "和朋友联机盖树屋，最后总是在抢木头。",
+      cover: "assets/covers/sons-of-the-forest.jpg",
+    },
+    {
+      name: "FC 25",
+      platform: "PC",
+      status: "偶尔玩",
+      rating: 7.5,
+      hours: 120,
+      note: "只玩生涯模式，转会窗比比赛还上头。",
+      cover: "assets/covers/fc25.jpg",
+    },
   ],
 
   /* ------------------------------- 番剧 ------------------------------- */
   anime: [
-    { name: "葬送的芙莉莲", year: 2023, status: "已看完", rating: 9.5, episodes: 28, note: "把「之后」拍得比「当时」更动人。" },
-    { name: "进击的巨人 最终季", year: 2023, status: "已看完", rating: 9.3, episodes: 28, note: "收尾争议很大，但我接受这个答案。" },
-    { name: "钢之炼金术师 FA", year: 2009, status: "三周目", rating: 9.7, episodes: 64, note: "结构最工整的长篇，没有之一。" },
-    { name: "悠哉日常大王", year: 2013, status: "已看完", rating: 9.1, episodes: 12, note: "睡前看两集，比什么都管用。" },
+    {
+      name: "进击的巨人",
+      year: 2013,
+      status: "已看完",
+      rating: 9.3,
+      episodes: 87,
+      note: "收尾争议很大，但我接受这个答案。",
+      cover: "assets/covers/aot.webp",
+    },
+    {
+      name: "无职转生",
+      year: 2021,
+      status: "追更中",
+      rating: 9.0,
+      episodes: 24,
+      note: "异世界番里少见的、真的在讲成长的一部。",
+      cover: "assets/covers/mushoku.jpg",
+    },
+    {
+      name: "东京喰种",
+      year: 2014,
+      status: "已看完",
+      rating: 8.4,
+      episodes: 12,
+      note: "第一季的氛围和片头曲至今难忘。",
+      cover: "assets/covers/tokyo-ghoul.jpg",
+    },
+    {
+      name: "龙珠",
+      year: 1986,
+      status: "童年最爱",
+      rating: 9.2,
+      episodes: 153,
+      note: "小时候守在电视前等的那一集。",
+      cover: "assets/covers/dragon-ball.webp",
+    },
   ],
 
   /* ------------------------------- 技能 ------------------------------- */

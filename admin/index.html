@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>发布动态 · 后台</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../assets/styles.css" />
+    <style>
+      /* 后台页：复用主站的配色令牌，只补一点表单样式 */
+      .admin-body {
+        min-height: 100svh;
+        padding: clamp(20px, 4vw, 48px) clamp(16px, 4vw, 32px) 64px;
+      }
+
+      .admin {
+        width: 100%;
+        max-width: 760px;
+        margin-inline: auto;
+      }
+
+      .admin__head h1 {
+        font-size: clamp(1.6rem, 3vw, 2.1rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+
+      .admin__head p {
+        margin-top: 10px;
+        max-width: 60ch;
+        color: var(--text-2);
+        font-size: 14.5px;
+      }
+
+      .admin__card {
+        margin-top: 24px;
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-card);
+        background: var(--surface);
+      }
+
+      .admin__card h2 {
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .admin__hint,
+      .admin__steps {
+        margin-top: 10px;
+        color: var(--text-2);
+        font-size: 13.5px;
+        line-height: 1.7;
+      }
+
+      .admin__steps {
+        padding-left: 20px;
+        list-style: decimal;
+      }
+
+      .admin__steps li + li {
+        margin-top: 4px;
+      }
+
+      .admin label {
+        display: block;
+        margin-top: 14px;
+        color: var(--text-2);
+        font-size: 13.5px;
+      }
+
+      .admin input[type="text"],
+      .admin input[type="password"],
+      .admin input[type="date"],
+      .admin textarea {
+        display: block;
+        width: 100%;
+        margin-top: 6px;
+        padding: 10px 12px;
+        border: 1px solid var(--line-strong);
+        border-radius: 10px;
+        background: var(--bg-raised);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 15px;
+      }
+
+      .admin textarea {
+        resize: vertical;
+        line-height: 1.7;
+      }
+
+      .admin input:focus-visible,
+      .admin textarea:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+
+      .admin__row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .admin__row input[type="password"] {
+        flex: 1 1 260px;
+        margin-top: 0;
+      }
+
+      .admin__link {
+        margin-left: auto;
+        color: var(--text-3);
+        font-size: 13.5px;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+
+      .admin__link:hover {
+        color: var(--text);
+      }
+
+      .admin__list {
+        margin-top: 14px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .admin__list > li {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        padding: 12px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .admin__list > li:first-child {
+        border-top: 0;
+      }
+
+      .admin__item-date {
+        flex: none;
+        width: 96px;
+        color: var(--text-3);
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .admin__item-text {
+        flex: 1;
+        color: var(--text-2);
+        font-size: 14px;
+        line-height: 1.65;
+      }
+
+      .admin__item-tags {
+        display: block;
+        margin-top: 4px;
+        color: var(--text-3);
+        font-size: 12.5px;
+      }
+
+      .admin__item-actions {
+        flex: none;
+        display: flex;
+        gap: 10px;
+      }
+
+      .admin__mini {
+        color: var(--text-3);
+        font-size: 13px;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+
+      .admin__mini:hover {
+        color: var(--accent-text);
+      }
+
+      .admin__status {
+        margin-top: 18px;
+        min-height: 22px;
+        color: var(--text-2);
+        font-size: 13.5px;
+      }
+
+      .admin__status.is-ok {
+        color: #8fe0a8;
+      }
+
+      .admin__status.is-bad {
+        color: #ff9a90;
+      }
+
+      .admin__status a {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+    </style>
+    <script>
+      /* 和主站一致：先定主题，避免闪一下 */
+      (function () {
+        try {
+          var saved = localStorage.getItem("personal-site.theme");
+          document.documentElement.dataset.theme = saved === "light" ? "light" : "dark";
+        } catch (err) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="admin-body">
+    <main class="admin">
+      <header class="admin__head">
+        <h1>发布动态</h1>
+        <p>
+          在这个页面写完点「发布」，内容会提交到仓库里的
+          <code>assets/moments.js</code>，大约 1 分钟后
+          <a href="https://simpleiiwi.github.io/">网站首页</a>就更新了。不需要改代码，也不需要在本地折腾文件。
+        </p>
+      </header>
+
+      <!-- 1. 登录 -->
+      <section class="admin__card" id="auth-card">
+        <h2>1. 先登录（只需要一次）</h2>
+        <p class="admin__hint">
+          用的是 GitHub 的细粒度令牌（fine-grained token）。令牌只存在你自己这台浏览器里，
+          只会发给 <code>api.github.com</code>，不会经过任何第三方。
+        </p>
+        <ol class="admin__steps">
+          <li>
+            打开
+            <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener"
+              >GitHub 令牌创建页</a
+            >
+          </li>
+          <li>Repository access 选 <b>Only select repositories</b>，勾上 <code>simpleiiwi.github.io</code></li>
+          <li>Permissions → Repository permissions → 找到 <b>Contents</b>，设为 <b>Read and write</b></li>
+          <li>点最下面 Generate token，把那串 <code>github_pat_…</code> 复制过来粘到下面</li>
+        </ol>
+        <div class="admin__row">
+          <input id="token" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false" />
+          <button id="save-token" class="btn btn--primary" type="button">保存并连接</button>
+        </div>
+      </section>
+
+      <!-- 2. 写内容 -->
+      <section class="admin__card" id="compose-card" hidden>
+        <h2 id="compose-title">2. 写一条动态</h2>
+        <label
+          >日期
+          <input id="date" type="date" />
+        </label>
+        <label
+          >内容
+          <textarea id="text" rows="4" placeholder="今天干了什么…"></textarea>
+        </label>
+        <label
+          >标签（用逗号隔开，可留空）
+          <input id="tags" type="text" placeholder="日记, 折腾" />
+        </label>
+        <div class="admin__row">
+          <button id="publish" class="btn btn--primary" type="button">发布</button>
+          <button id="cancel-edit" class="btn btn--ghost" type="button" hidden>取消编辑</button>
+          <button id="logout" class="admin__link" type="button">换令牌 / 退出</button>
+        </div>
+      </section>
+
+      <!-- 3. 已发布列表 -->
+      <section class="admin__card" id="list-card" hidden>
+        <h2>3. 已经发布的动态</h2>
+        <ul class="admin__list" id="list"></ul>
+      </section>
+
+      <p class="admin__status" id="status" role="status" aria-live="polite"></p>
+    </main>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var OWNER = "simpleiiwi";
+        var REPO = "simpleiiwi.github.io";
+        var BRANCH = "main";
+        var PATH = "assets/moments.js";
+        var API = "https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + PATH;
+        var TOKEN_KEY = "site-admin-token";
+
+        var HEADER =
+          "/* ============================================================================\n" +
+          " * 动态 / 日记 / 朋友圈 —— 这个文件由后台 https://simpleiiwi.github.io/admin/ 维护\n" +
+          " * 也可以直接手动改：数组里最新的放最前面，date 用 YYYY-MM-DD。\n" +
+          " * ==========================================================================*/\n";
+
+        var state = { token: "", sha: "", items: [], editing: -1 };
+
+        function el(id) {
+          return document.getElementById(id);
+        }
+
+        function setStatus(message, kind) {
+          var node = el("status");
+          node.innerHTML = message || "";
+          node.className = "admin__status" + (kind ? " is-" + kind : "");
+        }
+
+        /* 中文要按 UTF-8 转 base64，不能直接用 btoa */
+        function toBase64(text) {
+          var bytes = new TextEncoder().encode(text);
+          var binary = "";
+          bytes.forEach(function (b) {
+            binary += String.fromCharCode(b);
+          });
+          return btoa(binary);
+        }
+
+        function fromBase64(b64) {
+          var binary = atob(b64.replace(/\s/g, ""));
+          var bytes = Uint8Array.from(binary, function (c) {
+            return c.charCodeAt(0);
+          });
+          return new TextDecoder().decode(bytes);
+        }
+
+        function serialize() {
+          return HEADER + "window.SiteMoments = " + JSON.stringify(state.items, null, 2) + ";\n";
+        }
+
+        /**
+         * 从 moments.js 里把数组读出来。
+         * 后台自己写出去的一定是标准 JSON；但你要是手动编辑过、把键写成 date: 这种不带引号的写法，
+         * JSON.parse 会失败，这里退回按 JS 字面量求值，别让你的手改把后台卡住。
+         */
+        function parseItems(text) {
+          var match = text.match(/SiteMoments\s*=\s*(\[[\s\S]*\])\s*;/);
+          if (!match) {
+            return [];
+          }
+          try {
+            return JSON.parse(match[1]);
+          } catch (err) {
+            /* 继续往下面试 */
+          }
+          try {
+            return new Function("return " + match[1])();
+          } catch (err) {
+            return [];
+          }
+        }
+
+        function apiHeaders(extra) {
+          var headers = {
+            Authorization: "Bearer " + state.token,
+            Accept: "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28"
+          };
+          for (var key in extra || {}) {
+            if (Object.prototype.hasOwnProperty.call(extra, key)) {
+              headers[key] = extra[key];
+            }
+          }
+          return headers;
+        }
+
+        function friendlyError(status, body) {
+          if (status === 401) {
+            return "令牌无效或已过期，重新生成一个再试。";
+          }
+          if (status === 403) {
+            return "没有权限：确认令牌勾了这个仓库的 Contents: Read and write。";
+          }
+          if (status === 404) {
+            return "读不到文件：确认令牌勾的是 simpleiiwi.github.io 这个仓库。";
+          }
+          if (status === 409) {
+            return "文件刚被改动过（可能你同时在别处改），刷新页面再来一次。";
+          }
+          return "GitHub 返回 " + status + "：" + String(body).slice(0, 140);
+        }
+
+        function read() {
+          return fetch(API, { headers: apiHeaders(), cache: "no-store" }).then(function (res) {
+            if (!res.ok) {
+              return res.text().then(function (body) {
+                throw new Error(friendlyError(res.status, body));
+              });
+            }
+            return res.json();
+          });
+        }
+
+        function write(message) {
+          return fetch(API, {
+            method: "PUT",
+            headers: apiHeaders({ "Content-Type": "application/json" }),
+            body: JSON.stringify({
+              message: message,
+              content: toBase64(serialize()),
+              sha: state.sha,
+              branch: BRANCH
+            })
+          }).then(function (res) {
+            if (!res.ok) {
+              return res.text().then(function (body) {
+                throw new Error(friendlyError(res.status, body));
+              });
+            }
+            return res.json();
+          });
+        }
+
+        function sortItems() {
+          state.items.sort(function (a, b) {
+            return String(b.date).localeCompare(String(a.date));
+          });
+        }
+
+        function render() {
+          el("auth-card").hidden = !!state.token;
+          el("compose-card").hidden = !state.token;
+          el("list-card").hidden = !state.token;
+
+          var list = el("list");
+          list.innerHTML = state.items
+            .map(function (item, index) {
+              var tags = (item.tags || []).join(" · ");
+              return (
+                "<li>" +
+                '<span class="admin__item-date">' +
+                escapeHtml(item.date) +
+                "</span>" +
+                '<span class="admin__item-text">' +
+                escapeHtml(item.text) +
+                (tags ? '<span class="admin__item-tags">' + escapeHtml(tags) + "</span>" : "") +
+                "</span>" +
+                '<span class="admin__item-actions">' +
+                '<button class="admin__mini" type="button" data-edit="' +
+                index +
+                '">编辑</button>' +
+                '<button class="admin__mini" type="button" data-delete="' +
+                index +
+                '">删除</button>' +
+                "</span>" +
+                "</li>"
+              );
+            })
+            .join("");
+        }
+
+        function escapeHtml(value) {
+          return String(value === undefined || value === null ? "" : value).replace(/[&<>"']/g, function (ch) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+          });
+        }
+
+        function todayValue() {
+          var now = new Date();
+          var pad = function (n) {
+            return String(n).padStart(2, "0");
+          };
+          return now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate());
+        }
+
+        function resetForm() {
+          state.editing = -1;
+          el("compose-title").textContent = "2. 写一条动态";
+          el("publish").textContent = "发布";
+          el("cancel-edit").hidden = true;
+          el("date").value = todayValue();
+          el("text").value = "";
+          el("tags").value = "";
+        }
+
+        function connect(token) {
+          state.token = token;
+          setStatus("正在读取仓库里的动态…");
+          return read()
+            .then(function (data) {
+              state.sha = data.sha;
+              var text = fromBase64(data.content);
+              state.items = parseItems(text);
+              sortItems();
+              render();
+              resetForm();
+              setStatus("连接成功，可以在下面写了。", "ok");
+            })
+            .catch(function (err) {
+              state.token = "";
+              render();
+              setStatus(err.message, "bad");
+            });
+        }
+
+        el("save-token").addEventListener("click", function () {
+          var token = el("token").value.trim();
+          if (!token) {
+            setStatus("先把令牌粘进来。", "bad");
+            return;
+          }
+          try {
+            localStorage.setItem(TOKEN_KEY, token);
+          } catch (err) {
+            /* 隐私模式下存不了也没关系，本次会话照常用 */
+          }
+          connect(token);
+        });
+
+        el("logout").addEventListener("click", function () {
+          try {
+            localStorage.removeItem(TOKEN_KEY);
+          } catch (err) {
+            /* 忽略 */
+          }
+          state.token = "";
+          state.items = [];
+          el("token").value = "";
+          render();
+          setStatus("已退出，令牌从这台浏览器里删掉了。");
+        });
+
+        el("cancel-edit").addEventListener("click", function () {
+          resetForm();
+          setStatus("已取消编辑。");
+        });
+
+        el("publish").addEventListener("click", function () {
+          var date = el("date").value || todayValue();
+          var text = el("text").value.trim();
+          var tags = el("tags")
+            .value.split(/[,，]/)
+            .map(function (t) {
+              return t.trim();
+            })
+            .filter(Boolean);
+          if (!text) {
+            setStatus("内容不能是空的。", "bad");
+            return;
+          }
+          var entry = { date: date, text: text };
+          if (tags.length) {
+            entry.tags = tags;
+          }
+          var isEdit = state.editing >= 0;
+          if (isEdit) {
+            state.items[state.editing] = entry;
+          } else {
+            state.items.push(entry);
+          }
+          sortItems();
+          setStatus("正在提交…");
+          write((isEdit ? "更新动态 " : "新增动态 ") + date)
+            .then(function () {
+              render();
+              resetForm();
+              setStatus(
+                (isEdit ? "已更新。" : "已发布。") +
+                  '大约 1 分钟后生效，去 <a href="https://simpleiiwi.github.io/#moments" target="_blank" rel="noopener">网站动态区</a>看看。',
+                "ok"
+              );
+            })
+            .catch(function (err) {
+              setStatus(err.message, "bad");
+              return connect(state.token);
+            });
+        });
+
+        el("list").addEventListener("click", function (event) {
+          var editIndex = event.target.getAttribute("data-edit");
+          var deleteIndex = event.target.getAttribute("data-delete");
+          if (editIndex !== null) {
+            var index = Number(editIndex);
+            var item = state.items[index];
+            state.editing = index;
+            el("compose-title").textContent = "2. 编辑这条动态";
+            el("publish").textContent = "保存修改";
+            el("cancel-edit").hidden = false;
+            el("date").value = item.date;
+            el("text").value = item.text;
+            el("tags").value = (item.tags || []).join(", ");
+            el("text").focus();
+            setStatus("正在编辑 " + item.date + " 那条。");
+            return;
+          }
+          if (deleteIndex !== null) {
+            var target = state.items[Number(deleteIndex)];
+            if (!window.confirm("确定删除 " + target.date + " 这条动态？")) {
+              return;
+            }
+            state.items.splice(Number(deleteIndex), 1);
+            setStatus("正在删除…");
+            write("删除动态 " + target.date)
+              .then(function () {
+                render();
+                resetForm();
+                setStatus("已删除，大约 1 分钟后网站上就看不到了。", "ok");
+              })
+              .catch(function (err) {
+                setStatus(err.message, "bad");
+                return connect(state.token);
+              });
+          }
+        });
+
+        /* 打开页面时如果之前存过令牌，自动连上 */
+        var saved = "";
+        try {
+          saved = localStorage.getItem(TOKEN_KEY) || "";
+        } catch (err) {
+          saved = "";
+        }
+        if (saved) {
+          el("token").value = saved;
+          connect(saved);
+        } else {
+          el("date").value = todayValue();
+          setStatus("");
+        }
+      })();
+    </script>
+  </body>
+</html>
