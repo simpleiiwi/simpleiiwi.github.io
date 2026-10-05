@@ -18,6 +18,13 @@ window.SiteMoments = [
     ]
   },
   {
+    "date": "2026-10-05",
+    "text": "烫发了被别人说没区别。",
+    "images": [
+      "assets/moments/20261005-220751-ihtz.jpg"
+    ]
+  },
+  {
     "date": "2026-10-04",
     "text": "今天赛车，明天烫发。",
     "images": [
