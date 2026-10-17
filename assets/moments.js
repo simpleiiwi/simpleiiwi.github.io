@@ -7,13 +7,6 @@ window.SiteMoments = [
     "date": "2026-10-05",
     "text": "烫发了被别人说没区别。",
     "images": [
-      "assets/moments/20261005-220747-xbao.jpg"
-    ]
-  },
-  {
-    "date": "2026-10-05",
-    "text": "烫发了被别人说没区别。",
-    "images": [
       "assets/moments/20261005-220749-78ax.jpg"
     ]
   },
